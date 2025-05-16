@@ -3,10 +3,17 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import URL
 from .serializers import URLSerializer
+from django.shortcuts import redirect
+from drf_spectacular.utils import extend_schema
 
 # Create your views here.
 
 class URLShortenerView(APIView):
+    @extend_schema(
+        request=URLSerializer,
+        responses=URLSerializer,
+        description="URL manzilni qisqartirish uchun endpoint. Faqat POST."
+    )
     def post(self, request):
         serializer = URLSerializer(data=request.data)
         if serializer.is_valid():
@@ -21,7 +28,7 @@ class GetURL(APIView):
             url = URL.objects.get(short_code=short_code)
             url.count += 1
             url.save()
-            return Response(URLSerializer(url).data)
+            return redirect(url.url)
         except URL.DoesNotExist:
             return Response({'error': 'URL not found'}, status=status.HTTP_404_NOT_FOUND)
    

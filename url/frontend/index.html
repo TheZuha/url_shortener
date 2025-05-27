@@ -2,44 +2,51 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>URL Shortener</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body class="bg-light">
-
-  <div class="container py-5">
-    <h1 class="text-center mb-4">🔗 URL Shortener</h1>
-
-    <!-- URL Shorten Form -->
-    <form id="shortenForm" class="mb-4">
-      <div class="input-group">
-        <input type="url" class="form-control" id="urlInput" placeholder="https://example.com" required>
-        <button class="btn btn-primary">Shorten</button>
-      </div>
-    </form>
-
-    <!-- Result -->
-    <div id="result" class="alert alert-success d-none"></div>
-
-    <!-- Divider -->
-    <hr class="my-5">
-
-    <!-- Short Code Actions -->
-    <h4>🔍 Manage Short URL</h4>
-    <input type="text" class="form-control mb-3" id="shortCodeInput" placeholder="Enter short code...">
-
-    <div class="d-grid gap-2 d-md-block mb-3">
-      <button class="btn btn-info me-2" onclick="getURL()">Get Original</button>
-      <button class="btn btn-secondary me-2" onclick="getStats()">Stats</button>
-      <button class="btn btn-warning me-2" onclick="updateURL()">Update</button>
-      <button class="btn btn-danger" onclick="deleteURL()">Delete</button>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="#">🔗 URL Shortener</a>
     </div>
-
-    <!-- Output -->
-    <div id="output" class="alert d-none"></div>
+  </nav>
+  <div class="container py-4">
+    <div class="row justify-content-center">
+      <div class="col-lg-7 col-md-9">
+        <div class="card shadow-sm mb-4">
+          <div class="card-body">
+            <h2 class="card-title text-center mb-3">URL'ni qisqartirish</h2>
+            <form id="shortenForm" class="mb-3">
+              <div class="input-group">
+                <input type="url" class="form-control" id="urlInput" placeholder="https://example.com" required>
+                <button class="btn btn-primary" type="submit">Qisqartir</button>
+              </div>
+            </form>
+            <div id="result" class="alert alert-success d-none"></div>
+          </div>
+        </div>
+        <div class="card shadow-sm mb-4">
+          <div class="card-body">
+            <h4 class="card-title mb-3">🔍 Qisqa URL bilan ishlash</h4>
+            <input type="text" class="form-control mb-3" id="shortCodeInput" placeholder="Qisqa kodni kiriting...">
+            <div class="d-flex flex-wrap gap-2 mb-3">
+              <button class="btn btn-info" onclick="getURL()">Originalini ko'rish</button>
+              <button class="btn btn-secondary" onclick="getStats()">Statistika</button>
+              <button class="btn btn-warning" onclick="updateURL()">Yangilash</button>
+              <button class="btn btn-danger" onclick="deleteURL()">O'chirish</button>
+            </div>
+            <div id="output" class="alert d-none"></div>
+          </div>
+        </div>
+        <div class="text-center text-muted small">
+          <p>Muallif: <a href="https://github.com/TheZuha" target="_blank">TheZuha</a> | <a href="http://127.0.0.1:8000//api/docs/" target="_blank">Swagger API</a></p>
+        </div>
+      </div>
+    </div>
   </div>
-
   <script src="script.js"></script>
 </body>
 </html>

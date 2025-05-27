@@ -1,75 +1,133 @@
 const BASE_URL = 'http://127.0.0.1:8000/shorten';
 
+// Loader uchun yordamchi
+function showLoader(btn, loading = true) {
+  if (loading) {
+    btn.disabled = true;
+    btn.dataset.original = btn.innerHTML;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Qisqartirilmoqda...';
+  } else {
+    btn.disabled = false;
+    if (btn.dataset.original) btn.innerHTML = btn.dataset.original;
+  }
+}
+
 // Shorten URL
-document.getElementById('shortenForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-  
-    const url = document.getElementById('urlInput').value;
+const shortenForm = document.getElementById('shortenForm');
+shortenForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const url = document.getElementById('urlInput').value;
+  const btn = shortenForm.querySelector('button[type="submit"]');
+  showLoader(btn, true);
+  const resultDiv = document.getElementById('result');
+  resultDiv.classList.add('d-none');
+  try {
     const res = await fetch(BASE_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url: url })
+      body: JSON.stringify({ url })
     });
-  
-    const resultDiv = document.getElementById('result');
+    const data = await res.json();
+    if (res.ok) {
+      const shortUrl = `${window.location.origin}/${data.short_code}`;
+      resultDiv.className = 'alert alert-success';
+      resultDiv.innerHTML = `✅ Qisqa URL: <a href="http://127.0.0.1:8000/${shortUrl}" target="_blank">${shortUrl}</a> <button class='btn btn-sm btn-outline-secondary ms-2' onclick='copyToClipboard("${shortUrl}")'>Nusxa olish</button>`;
+    } else {
+      resultDiv.className = 'alert alert-danger';
+      resultDiv.textContent = `❌ Xatolik: ${data.detail || JSON.stringify(data)}`;
+    }
+  } catch (err) {
+    resultDiv.className = 'alert alert-danger';
+    resultDiv.textContent = '❌ Server bilan bog‘lanishda xatolik.';
+  }
+  resultDiv.classList.remove('d-none');
+  showLoader(btn, false);
+});
+
+window.copyToClipboard = function(text) {
+  navigator.clipboard.writeText(text);
+  alert('Nusxa olindi!');
+}
+
+// Get Original URL
+globalThis.getURL = async function() {
+  const code = document.getElementById('shortCodeInput').value.trim();
+  if (!code) return showOutput('Qisqa kod kiriting!', false);
+  try {
+    const res = await fetch(`${BASE_URL}/${code}`);
     if (res.ok) {
       const data = await res.json();
-      resultDiv.className = 'alert alert-success';
-      resultDiv.innerHTML = `✅ Short URL: <a href="${BASE_URL}/${data.short_code}" target="_blank">${BASE_URL}/${data.short_code}</a>`;
+      showOutput(`🔗 Original URL: <a href='${data.url}' target='_blank'>${data.url}</a>`, true);
     } else {
-      const error = await res.json();
-      resultDiv.className = 'alert alert-danger';
-      resultDiv.textContent = `❌ Error: ${JSON.stringify(error)}`;
+      showOutput('❌ Topilmadi yoki xatolik.', false);
     }
-  
-    resultDiv.classList.remove('d-none');
-  });
-  
-  
-// Get Original URL
-async function getURL() {
-    const code = document.getElementById('shortCodeInput').value;
-    const res = await fetch(`${BASE_URL}/${code}`);
-    showOutput(res);
+  } catch {
+    showOutput('❌ Server bilan bog‘lanishda xatolik.', false);
   }
-  
-  // Stats
-  async function getStats() {
-    const code = document.getElementById('shortCodeInput').value;
+}
+
+// Stats
+globalThis.getStats = async function() {
+  const code = document.getElementById('shortCodeInput').value.trim();
+  if (!code) return showOutput('Qisqa kod kiriting!', false);
+  try {
     const res = await fetch(`${BASE_URL}/${code}/stats`);
-    showOutput(res);
+    const data = await res.json();
+    if (res.ok) {
+      showOutput(`📊 Statistika: <b>${data.count}</b> marta bosilgan.`, true);
+    } else {
+      showOutput('❌ Statistika topilmadi.', false);
+    }
+  } catch {
+    showOutput('❌ Server bilan bog‘lanishda xatolik.', false);
   }
-  
-  // Update
-  async function updateURL() {
-    const code = document.getElementById('shortCodeInput').value;
-    const newUrl = prompt("Enter new URL:");
-    if (!newUrl) return;
+}
+
+// Update
+globalThis.updateURL = async function() {
+  const code = document.getElementById('shortCodeInput').value.trim();
+  if (!code) return showOutput('Qisqa kod kiriting!', false);
+  const newUrl = prompt("Yangi URL'ni kiriting:");
+  if (!newUrl) return;
+  try {
     const res = await fetch(`${BASE_URL}/${code}/update`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ url: newUrl })
     });
-    showOutput(res);
-  }
-  
-  // Delete
-  async function deleteURL() {
-    const code = document.getElementById('shortCodeInput').value;
-    const confirmDelete = confirm("Are you sure you want to delete this short URL?");
-    if (!confirmDelete) return;
-    const res = await fetch(`${BASE_URL}/${code}/delete`, {
-      method: 'DELETE'
-    });
-    showOutput(res);
-  }
-  
-  // Show Output
-  async function showOutput(res) {
-    const output = document.getElementById('output');
     const data = await res.json();
-    output.classList.remove('d-none');
-    output.className = `alert ${res.ok ? 'alert-info' : 'alert-danger'}`;
-    output.textContent = JSON.stringify(data, null, 2);
+    if (res.ok) {
+      showOutput('✅ URL yangilandi!', true);
+    } else {
+      showOutput('❌ Xatolik: ' + (data.detail || JSON.stringify(data)), false);
+    }
+  } catch {
+    showOutput('❌ Server bilan bog‘lanishda xatolik.', false);
   }
+}
+
+// Delete
+globalThis.deleteURL = async function() {
+  const code = document.getElementById('shortCodeInput').value.trim();
+  if (!code) return showOutput('Qisqa kod kiriting!', false);
+  if (!confirm("Rostdan ham o‘chirmoqchimisiz?")) return;
+  try {
+    const res = await fetch(`${BASE_URL}/${code}/delete`, { method: 'DELETE' });
+    if (res.ok) {
+      showOutput('🗑️ Qisqa URL o‘chirildi!', true);
+    } else {
+      showOutput('❌ O‘chirishda xatolik.', false);
+    }
+  } catch {
+    showOutput('❌ Server bilan bog‘lanishda xatolik.', false);
+  }
+}
+
+// Show Output
+function showOutput(msg, success = true) {
+  const output = document.getElementById('output');
+  output.classList.remove('d-none');
+  output.className = `alert ${success ? 'alert-info' : 'alert-danger'}`;
+  output.innerHTML = msg;
+}
   

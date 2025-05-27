@@ -61,7 +61,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'url' / 'frontend'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -97,11 +97,11 @@ REST_FRAMEWORK = {
 
 SPECTACULAR_SETTINGS = {
     'TITLE': 'URL Shortener API',
-    'DESCRIPTION': 'Bu API URL’larni qisqartirish, statistikani olish, yangilash va o‘chirish uchun ishlatiladi.',
+    'DESCRIPTION': 'Bu API URLlarni qisqartirish, statistikani olish, yangilash va ochirish uchun ishlatiladi.',
     'VERSION': '1.0.0',
-    'SERVE_INCLUDE_SCHEMA': False,  # `/schema/` endpointni avtomatik ko‘rsatmaslik
+    'SERVE_INCLUDE_SCHEMA': False,  # `/schema/` endpointni avtomatik ko'rsatmaslik
     'COMPONENT_SPLIT_REQUEST': True,
-    'SCHEMA_PATH_PREFIX': '/api/',  # Faqat `/api/` ostidagi endpointlarni ko‘rsatadi
+    'SCHEMA_PATH_PREFIX': '/api/',  # Faqat `/api/` ostidagi endpointlarni ko'rsatadi
     'SERVERS': [
         {'url': 'http://localhost:8000', 'description': 'Development Server'},
     ],
@@ -145,6 +145,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [BASE_DIR / 'url' / 'frontend']
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
